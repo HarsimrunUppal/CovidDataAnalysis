@@ -1,5 +1,5 @@
 
---Portfolio Project 1 - started on 10/29/2022
+--COVID 19 Data Analysis - started on 10/29/2022, completed on 11/2/2022 
 
 Select * 
 From PortfolioProject.dbo.CovidDeaths
@@ -10,21 +10,21 @@ order by 3,4
 --From PortfolioProject.dbo.CovidVaccinations
 --order by 3,4 
 
---Select data that we are going to be using-- 
+--Select data that we are going to be using
 
 Select location, date, total_cases, new_cases, total_deaths, population
 From PortfolioProject.dbo.CovidDeaths
 order by 1,2 
 
---Looking at Total Cases vs Total Deaths-- 
---Shows liklihood of dying if you contract covid in your country-- 
+--Looking at Total Cases vs Total Deaths
+--Shows the liklihood of dying if you were to contract covid in your country
 Select location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 as DeathPercentage
 From PortfolioProject.dbo.CovidDeaths
 where location like '%states%' 
 order by 1,2
 
---Looking at Total Cases vs Population-- 
---Show what percentage of population got Covid-- 
+--Looking at Total Cases vs Population
+--This will display the percentage of population got Covid-- 
 
 Select location, date, population, total_deaths, (total_cases/population)*100 as PercentPopulationInfected
 From PortfolioProject.dbo.CovidDeaths
@@ -32,7 +32,7 @@ From PortfolioProject.dbo.CovidDeaths
 order by 1,2
 
 
---Looking at countries with Highest infection rate compared to Population-- 
+--Looking at countries with the Highest infection rate compared to Population
 
 Select location, population, MAX(total_cases) as HighestInfectionCount, MAX((total_cases/population))*100 as PercentPopulationInfected
 From PortfolioProject.dbo.CovidDeaths
@@ -40,7 +40,7 @@ From PortfolioProject.dbo.CovidDeaths
 group by location, population 
 order by PercentPopulationInfected desc
 
---Showing Countries with Highest Death Count per Population-- 
+--Showing Countries with the Highest Death Count per Population
 
 Select location, MAX(cast(total_deaths as int)) as TotalDeathCount 
 From PortfolioProject.dbo.CovidDeaths
@@ -49,9 +49,9 @@ where continent is not null
 group by location 
 order by TotalDeathCount desc 
 
---LET'S BREAK THINGS DOWN BY CONTINENT--
+--Break data down by Continent
 
---We will use this query for the Tableau Visualization in part 2 of this project 
+--Will use this query for creating a Visualization 
 Select continent, MAX(cast(total_deaths as int)) as TotalDeathCount 
 From PortfolioProject.dbo.CovidDeaths
 --where location like '%states%' 
@@ -78,7 +78,7 @@ group by continent
 order by TotalDeathCount desc 
 
 
---Global Numbers--
+--Global Numbers
 
 Select date, SUM(new_cases) -- total_deaths, (total_deaths/total_cases)*100 as DeathPercentage
 From PortfolioProject.dbo.CovidDeaths
@@ -97,7 +97,7 @@ order by 1,2
 
 
 
---Now we are joining Covid Deaths table with Covid Vaccinations table 
+--Join the Covid Deaths table with Covid Vaccinations table 
 
 --Looking at Total Population vs Vaccinations 
 
@@ -119,7 +119,7 @@ and dea.date = vac.date
 where dea.continent is not null --and vac.new_vaccinations is not null 
 order by 2,3
 
---USE a CTE--
+--USE a CTE
 
 With PopvsVac (Continent, Location, Date, Population, new_vaccinations, RollingPeopleVaccinated)
 as 
@@ -136,7 +136,7 @@ where dea.continent is not null
 Select * 
 From PopvsVac
 
---TEMP TABLE-- 
+--TEMP TABLE
 
 DROP Table if exists #PercentPopulationVac 
 Create Table #PercentPopulationVac 
@@ -163,7 +163,7 @@ From #PercentPopulationVac
 
 
 
---Creating View to store data for later visualizations 
+--Creating View to store data for visualizations 
 
 Create View PercentPopulationVac as
 Select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations, SUM(convert(int, vac.new_vaccinations)) OVER (Partition by dea.Location Order by dea.location, dea.date) as RollingPeopleVaccinated
